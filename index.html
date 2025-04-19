@@ -1,0 +1,62 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Dоговор’OK</title>
+  <style>
+    body { font-family: sans-serif; padding: 30px; background: #f7f7f7; }
+    input, button { padding: 10px; margin: 5px; width: 300px; }
+    .btn-group a { margin-right: 10px; display: inline-block; margin-top: 10px; }
+    #result { white-space: pre-wrap; margin-top: 20px; background: #fff; padding: 20px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Проверка перевозчика: Dоговор’OK</h1>
+
+  <input type="text" id="inn" placeholder="Введите ИНН"><br>
+  <input type="text" id="atiId" placeholder="Введите ID ATI"><br>
+  <button onclick="check()">Проверить</button>
+
+  <div id="result"></div>
+
+  <div class="btn-group">
+    <a id="mailto" href="#" target="_blank">Отправить на почту</a>
+    <a id="whatsapp" href="#" target="_blank">WhatsApp</a>
+    <a id="telegram" href="#" target="_blank">Telegram</a>
+  </div>
+
+  <script>
+    async function check() {
+      const inn = document.getElementById("inn").value;
+      const atiId = document.getElementById("atiId").value;
+      const resultBox = document.getElementById("result");
+
+      let query = inn ? { query: inn } : (atiId ? { firmId: atiId } : null);
+      if (!query) {
+        resultBox.innerText = "Введите ИНН или ID ATI.";
+        return;
+      }
+
+      resultBox.innerText = "Загрузка данных...";
+      const res = await fetch("https://api.ati.su/v1.0/firms/search/summaries", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer 3a352f93-7c90-4317-a1a1-8b8a0b8863fb"
+        },
+        body: JSON.stringify(query)
+      });
+      const data = await res.json();
+      const text = JSON.stringify(data, null, 2);
+      resultBox.innerText = text;
+
+      const subject = encodeURIComponent("Результат проверки перевозчика");
+      const body = encodeURIComponent("ИНН: " + inn + "\nID ATI: " + atiId + "\n\n" + text);
+      document.getElementById("mailto").href = "mailto:9350020@list.ru?subject=" + subject + "&body=" + body;
+      document.getElementById("whatsapp").href = "https://wa.me/?text=" + body;
+      document.getElementById("telegram").href = "https://t.me/share/url?text=" + body;
+    }
+  </script>
+</body>
+</html>
