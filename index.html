@@ -27,32 +27,31 @@
   </div>
 
   <script>
-    async function check() {
+    function check() {
       const inn = document.getElementById("inn").value;
       const atiId = document.getElementById("atiId").value;
       const resultBox = document.getElementById("result");
 
-      let query = inn ? { query: inn } : (atiId ? { firmId: atiId } : null);
-      if (!query) {
-        resultBox.innerText = "Введите ИНН или ID ATI.";
-        return;
-      }
+      const fakeData = {
+        name: "ООО ТестПеревозки",
+        rating: 3.8,
+        reviews: 12,
+        problems: [
+          "Жалоба на невыданные документы",
+          "Нарушение сроков оплаты в феврале 2024",
+        ]
+      };
 
-      resultBox.innerText = "Загрузка данных...";
-      const res = await fetch("https://api.ati.su/v1.0/firms/search/summaries", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer 3a352f93-7c90-4317-a1a1-8b8a0b8863fb"
-        },
-        body: JSON.stringify(query)
-      });
-      const data = await res.json();
-      const text = JSON.stringify(data, null, 2);
-      resultBox.innerText = text;
+      const resultText =
+        "Название: " + fakeData.name + "\n" +
+        "Рейтинг: " + fakeData.rating + "\n" +
+        "Отзывов: " + fakeData.reviews + "\n" +
+        "Проблемы:\n- " + fakeData.problems.join("\n- ");
+
+      resultBox.innerText = resultText;
 
       const subject = encodeURIComponent("Результат проверки перевозчика");
-      const body = encodeURIComponent("ИНН: " + inn + "\nID ATI: " + atiId + "\n\n" + text);
+      const body = encodeURIComponent("ИНН: " + inn + "\nID ATI: " + atiId + "\n\n" + resultText);
       document.getElementById("mailto").href = "mailto:9350020@list.ru?subject=" + subject + "&body=" + body;
       document.getElementById("whatsapp").href = "https://wa.me/?text=" + body;
       document.getElementById("telegram").href = "https://t.me/share/url?text=" + body;
