@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Dоговор’OK – Проверка по нескольким ID ATI</title>
+</head>
+<body>
+  <h2>Проверка перевозчиков по ID ATI</h2>
+  <label for="atiIds">Введите ID через запятую:</label><br>
+  <input type="text" id="atiIds" placeholder="1012,12271,216209">
+  <button onclick="check()">Проверить</button>
+
+  <pre id="result"></pre>
+
+  <script>
+    async function check() {
+      const resultBox = document.getElementById("result");
+      const rawInput = document.getElementById("atiIds").value.trim();
+
+      if (!rawInput) {
+        resultBox.innerText = "Введите хотя бы один ID.";
+        return;
+      }
+
+      const ids = rawInput.split(",").map(id => id.trim());
+
+      resultBox.innerText = "Загрузка...";
+
+      try {
+        const res = await fetch("https://api.ati.su/v1.0/firms/summaries", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer 1d73979dade34a77b06f7ed24a9555ca"
+          },
+          body: JSON.stringify(ids)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error("Ошибка API: " + res.status + "\n" + JSON.stringify(data));
+        }
+
+        resultBox.innerText = JSON.stringify(data, null, 2);
+      } catch (error) {
+        resultBox.innerText = "Ошибка: " + error.message;
+      }
+    }
+  </script>
+</body>
+</html>
